@@ -1,0 +1,39 @@
+object Form3: TForm3
+  Left = 885
+  Height = 232
+  Top = 285
+  Width = 320
+  Caption = 'Akkutest - Info und Hilfe'
+  ClientHeight = 232
+  ClientWidth = 320
+  ShowInTaskBar = stNever
+  LCLVersion = '3.0.0.3'
+  object ComboBox1: TComboBox
+    Left = 8
+    Height = 23
+    Top = 8
+    Width = 304
+    ItemHeight = 15
+    ItemIndex = 0
+    Items.Strings = (
+      'Was ist Akkutest ? '
+      'Wie benutze ich es ?'
+      'Wer hat es programmiert ? '
+      'Versionsinfo'
+    )
+    Style = csDropDownList
+    TabOrder = 0
+    Text = 'Was ist Akkutest ? '
+    OnChange = ComboBox1Change
+  end
+  object Label1: TLabel
+    Left = 8
+    Height = 193
+    Top = 40
+    Width = 298
+    AutoSize = False
+    Caption = 'Akkutest ist ein Programm, um die maximale Akkulaufzeit eines mobilen Rechners (Notebook) bei eingeschalteter Displaybeleuchtung zu ermitteln.'
+    ParentColor = False
+    WordWrap = True
+  end
+end

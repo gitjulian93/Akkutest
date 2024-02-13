@@ -1,0 +1,328 @@
+unit Unit1;
+
+{$mode objfpc}{$H+}
+
+interface
+
+
+uses
+  Classes, SysUtils, FileUtil, TAGraph, TASeries, PrintersDlgs, Forms, Controls,
+  Graphics, Dialogs, StdCtrls, ExtCtrls, Printers;
+
+type
+
+  { TForm1 }
+
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    Chart1: TChart;
+    Chart1LineSeries1: TLineSeries;
+    Chart1LineSeries2: TLineSeries;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    OpenDialog1: TOpenDialog;
+    PrintDialog1: TPrintDialog;
+    SaveDialog1: TSaveDialog;
+    SaveDialog2: TSaveDialog;
+    Timer1: TTimer;
+
+
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+  private
+    { private declarations }
+  public
+
+    { public declarations }
+
+  end;
+
+procedure lade_graph(dateipfad:string);
+
+
+var
+  Form1: TForm1;
+
+implementation
+uses unit2;
+
+{$R *.lfm}
+
+
+{ TForm1 }
+
+procedure switchform(form:integer);
+begin
+  if form=1 then
+    begin
+
+      form2.Hide;
+      form2.ShowInTaskBar:=stnever;
+      form1.show;
+      form1.ShowInTaskBar:=stalways;
+      form2.timer1.enabled:=false;
+    end;
+
+  if form=2 then
+    begin
+      form1.Hide;
+      form1.ShowInTaskBar:=stnever;
+      form1.timer1.enabled:=false;
+      form2.timer1.enabled:=true;
+      form2.show;
+      form2.ShowInTaskBar:=stalways;
+
+    end;
+end;
+
+function lade_Messungsnamen:string;
+var Lines: TStrings;
+    laenge:integer;
+begin
+  result:='';
+  Lines := TStringList.Create;
+    try
+      Lines.LoadFromFile('letzte_Messung.txt');
+      if Lines.Count = 0 then
+      result:=''
+      else
+      begin
+        result:=Lines[0];  // Namen der letzten Messung aus der Datei zuweisen
+        form1.savedialog2.filename:=Lines[0];//Falls Speicherung gewünscht, Dateinamen vorschlagen
+        laenge:=length(Lines[0])-4;//Dateiendung weg kürzen
+        form1.savedialog1.filename:=copy(Lines[0],1,laenge)+'.jpg';//Falls Speicherung gewünscht, Dateinamen vorschlagen
+      end;
+    except
+      Lines.Free;
+      form1.button1.click;
+    end;
+end;
+
+function SaveBitmapAsJPEG(BMP:TBitmap;Filename:String):Boolean;
+Var Bild:TJPEGImage;
+Begin
+  Result:=false;
+  Bild:=TJPEGImage.Create;
+  Try
+    Bild.Assign(BMP);
+    Bild.SaveToFile(filename);
+  Finally
+    FreeAndNil(Bild);
+    Result:=true;
+  End;
+End;
+
+
+function getprintimage():TBitmap;
+begin
+  Form1.button1.visible:=false;
+  Form1.button2.visible:=false;
+  Form1.button3.visible:=false;
+  Form1.button4.visible:=false;
+  Form1.button5.visible:=false;
+  Form1.label4.visible:=true;
+  Form1.Color:=clwhite;
+  Form1.Chart1.Color:=clwhite;
+
+  Result:= Form1.GetFormImage;
+
+  Form1.button1.visible:=true;
+  Form1.button2.visible:=true;
+  Form1.button3.visible:=true;
+  Form1.button4.visible:=true;
+  Form1.button5.visible:=true;
+  Form1.label4.visible:=false;
+  Form1.Color:=clDefault;
+  Form1.Chart1.Color:=clBtnFace;
+end;
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+var Textdatei:textfile;
+begin
+  assignfile(Textdatei, 'letzte_Messung.txt'); //hier wird die datei geleert
+  rewrite(Textdatei);//damit das programm weiß dass die letzte messung bereits
+  closefile(Textdatei);//angezeigt wurde
+  timer1.enabled:=true;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+var   imgWindow: TBitmap;
+begin
+  lade_Messungsnamen;
+  if not savedialog1.execute then
+  exit;
+
+    imgWindow := TBitmap.Create;
+    try
+      imgWindow := Form1.GetFormImage;
+      imgwindow.canvas.StretchDraw(Rect(0, 0, 700, 330), getprintimage);
+      if SaveBitmapAsJPEG(imgWindow,savedialog1.Filename)then showmessage('Speichern erfolgreich !');
+    finally
+      imgWindow.Free;
+    end;
+
+end;
+
+
+procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  application.terminate;
+end;
+
+function gibteilstringzeichen(text,trennzeichen:string; stringnummer:integer=1):string;
+var treffer,von,bis,i:integer;
+begin
+  von:=0;
+  bis:=0;
+  i:=1;
+  treffer:=0;
+
+  while (treffer<stringnummer)  do
+  begin
+    if (text[i]=trennzeichen) then
+    begin
+      von:=bis;
+      bis:=i;
+      treffer:=treffer+1;
+    end;
+    i:=i+1;
+  end;
+  von:=von+1;
+  bis:=bis-(von);
+  result:=copy(text,von,bis);
+end;
+
+procedure lade_graph(dateipfad:string);
+var zeit:string;
+    Lines: TStrings;
+    i,sek,min,std,sektotal,cpu,cpu_min,cpu_max,cpu_avg,akkustand: Integer;
+begin
+  if dateipfad<>'' then
+  begin
+  cpu_min:=1000;
+  cpu_max:=0;
+  cpu_avg:=0;
+  Lines := TStringList.Create;
+  try
+    Lines.LoadFromFile(dateipfad);
+    if Lines.Count = 0 then
+    raise Exception.Create('Die Datei ist leer.');                                                                  //Die Erste Zeile der Messungsdatei, somit der akkustand bei messbeginn
+    form1.label2.caption:='Test gestartet mit: '+inttostr(strtoint(Copy(Lines[0], 10, 3)))+' % Akku'; //umwandlung von str to int und zurück zur eliminierung führender nullen                                             //Die letzte Zeile der Messungsdatei, also die maximale Akkulaufzeit
+    form1.label3.caption:='Test beendet bei: '+
+    inttostr(strtoint(Copy(Lines[Lines.Count-1],10, 3)))+' % Akku';                                   //umwandlung von str to int und zurück zur eliminierung führender nullen
+
+    form1.Label1.caption:='Akkulaufzeit gesamt: '+Copy(Lines[Lines.Count-1],1, 8)+' (hh:mm:ss)';
+    form1.label4.caption:=copy(Dateipfad,1,length(Dateipfad)-4);//Der Titel der oben in der Bmp steht->ohne Dateiendung
+
+    for i:=0 to Lines.count-1 do
+    begin
+      zeit := copy(Lines[i],1,8); // (hh:mm:ss)
+      sek:=strtoint(copy(zeit,7,2));
+      min:=strtoint(copy(zeit,4,2));
+      std:=strtoint(copy(zeit,1,2));
+      sektotal:=sek+min*60+std*3600;
+      cpu:=strtoint(copy(Lines[i],14,3));//dritter teil der zeile
+      cpu_avg:=cpu_avg+cpu;
+      if (cpu>cpu_max) then cpu_max:=cpu;
+      if (cpu<cpu_min) then cpu_min:=cpu;
+      akkustand:=strtoint(copy(Lines[i],10, 3 ));//zweiter teil der zeile
+      form1.chart1lineseries1.AddXY((sektotal/60),akkustand);
+      form1.chart1lineseries2.AddXY((sektotal/60),cpu);
+    end;
+  cpu_avg:=round(cpu_avg / lines.count-1);
+  form1.label5.caption:='CPU-Auslastung: '+inttostr(cpu_min)+'% /'+inttostr(cpu_max)+'% /'+inttostr(cpu_avg)+'% (min/max/avg)';
+
+  finally
+    Lines.Free;
+  end;
+end;
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  try
+  if  lade_Messungsnamen='' then timer1.enabled:=true else
+    lade_graph(lade_Messungsnamen);
+  except
+    showmessage('Beim Laden der letzten Messung ist ein Fehler aufgetreten. Die Datei ist fehlerhaft.');
+    timer1.enabled:=true;
+  end;
+end;
+
+
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+   // Form2.Show;
+   // form1.hide;
+   // Form1.ShowInTaskBar:=stnever;
+   // Form2.ShowInTaskBar:=stalways;
+   // Timer1.enabled:=false;
+   // form2.timer1.enabled:=true;
+   // button2.enabled:=true;
+   // button3.enabled:=true;
+  switchform(2);
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+var fileSource, fileDest: string;
+begin
+  fileSource := lade_Messungsnamen;
+  savedialog2.execute;
+  fileDest := savedialog2.FileName;
+  try
+  CopyFile(PChar(fileSource), PChar(fileDest), False);
+  except
+  end;
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+  openDialog1.InitialDir := GetCurrentDir;
+  if opendialog1.execute then
+  if opendialog1.filename='' then exit
+  else
+    begin
+      try
+        chart1lineseries1.clear;
+        lade_graph(opendialog1.filename);
+        button2.enabled:=false;
+        button3.enabled:=false;
+      except
+        showmessage('Keine gültige Messdatei !');
+        Label1.caption:='Akkulaufzeit gesamt: ';
+        Label2.caption:='Test gestartet mit: ';
+        Label3.caption:='Test beendet bei: ';
+        exit;
+      end;
+    end;
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+if not PrintDialog1.Execute then
+exit;
+  Printer.Title:=label4.caption;
+  Printer.BeginDoc;
+  Printer.Canvas.StretchDraw(Rect(0, 0, Printer.PageWidth, round((Printer.PageHeight)*0.3)), getprintimage);
+  printer.EndDoc;
+end;
+
+
+
+end.
+

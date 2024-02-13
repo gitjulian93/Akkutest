@@ -1,0 +1,206 @@
+object Form1: TForm1
+  Left = 715
+  Height = 350
+  Top = 198
+  Width = 700
+  Caption = 'Akkutest v1.1 - letzte Messung'
+  ClientHeight = 350
+  ClientWidth = 700
+  Constraints.MaxHeight = 350
+  Constraints.MaxWidth = 700
+  Constraints.MinHeight = 350
+  Constraints.MinWidth = 700
+  OnClose = FormClose
+  OnCreate = FormCreate
+  LCLVersion = '1.2.6.0'
+  Visible = True
+  object Chart1: TChart
+    Left = 16
+    Height = 200
+    Top = 40
+    Width = 656
+    AllowZoom = False
+    AxisList = <    
+      item
+        Minors = <>
+        Title.LabelFont.Color = 10485760
+        Title.LabelFont.Orientation = 900
+        Title.Visible = True
+        Title.Caption = 'Akkustand in Prozent'
+      end    
+      item
+        Alignment = calBottom
+        Minors = <>
+        Title.Visible = True
+        Title.Caption = 'Zeit in Minuten'
+      end    
+      item
+        Alignment = calRight
+        Minors = <>
+        Title.LabelFont.Color = clMaroon
+        Title.LabelFont.Orientation = 900
+        Title.Visible = True
+        Title.Caption = 'CPU-Auslastung in Prozent'
+      end>
+    Foot.Brush.Color = clBtnFace
+    Foot.Font.Color = clBlue
+    Title.Brush.Color = clBtnFace
+    Title.Font.Color = clBlue
+    Title.Text.Strings = (
+      'TAChart'
+    )
+    ParentColor = False
+    object Chart1LineSeries1: TLineSeries
+      LinePen.Color = 10485760
+    end
+    object Chart1LineSeries2: TLineSeries
+      LinePen.Color = clMaroon
+    end
+  end
+  object Button1: TButton
+    Left = 592
+    Height = 26
+    Top = 318
+    Width = 100
+    Caption = 'Schließen'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object Button2: TButton
+    Left = 544
+    Height = 25
+    Top = 8
+    Width = 136
+    Caption = 'als .jpg speichern'
+    OnClick = Button2Click
+    TabOrder = 2
+  end
+  object Button3: TButton
+    Left = 416
+    Height = 25
+    Top = 8
+    Width = 120
+    Caption = 'Als .txt speichern'
+    OnClick = Button3Click
+    TabOrder = 3
+  end
+  object Label1: TLabel
+    Left = 32
+    Height = 24
+    Top = 248
+    Width = 218
+    Caption = 'Akkulaufzeit gesamt: '
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -21
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label2: TLabel
+    Left = 32
+    Height = 24
+    Top = 272
+    Width = 188
+    Caption = 'Test gestartet mit: '
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -21
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 32
+    Height = 24
+    Top = 296
+    Width = 179
+    Caption = 'Test beendet bei: '
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -21
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Button4: TButton
+    Left = 232
+    Height = 25
+    Top = 8
+    Width = 171
+    Caption = 'Gespeicherte Messung laden'
+    OnClick = Button4Click
+    TabOrder = 4
+  end
+  object Button5: TButton
+    Left = 144
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Drucken'
+    OnClick = Button5Click
+    TabOrder = 5
+  end
+  object Label4: TLabel
+    Left = 64
+    Height = 20
+    Top = 0
+    Width = 250
+    Caption = 'I7-JULIAN_AkkuTest_22.10.2014,18.31.24'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -16
+    Font.Name = 'Arial Narrow'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Visible = False
+  end
+  object Label5: TLabel
+    Left = 32
+    Height = 24
+    Top = 320
+    Width = 178
+    Caption = 'CPU-Auslastung :'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -21
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object SaveDialog1: TSaveDialog
+    Filter = 'jpg|.jpg'
+    left = 528
+    top = 240
+  end
+  object SaveDialog2: TSaveDialog
+    Filter = 'Textdatei|*.txt'
+    left = 448
+    top = 240
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 640
+    top = 256
+  end
+  object OpenDialog1: TOpenDialog
+    Filter = 'Textdatei|*.txt'
+    left = 360
+    top = 240
+  end
+  object PrintDialog1: TPrintDialog
+    left = 16
+  end
+end
